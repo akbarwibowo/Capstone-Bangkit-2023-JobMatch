@@ -13,7 +13,7 @@ from keras.preprocessing.text import Tokenizer
 
 # initiate variables
 cwd = getcwd()
-path = f"{cwd}/Dataset/data_capstone.csv"  # path for the dataset
+path = f"./Dataset/data_capstone.csv"  # path for the dataset
 train_size = 0.9
 oov = 'oov'
 padding = 'post'
