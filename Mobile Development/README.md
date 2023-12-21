@@ -16,7 +16,7 @@ Click the link above, and click the green button on the top of the right
     
 ## Documentation
 
-[Documentation](https://linktodocumentation)
+[Documentation]([https://linktodocumentation](https://youtu.be/j0qZOyKyzz0))
 
 1. Register  your account by clicking the register button on the first page that appears on the screen
 2. if you already have an account, just log in
