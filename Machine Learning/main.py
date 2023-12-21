@@ -1,17 +1,31 @@
 import numpy as np
 from tensorflow import keras
-from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
-
-from UseFunctional import key_token
-from UseFunctional import job_token
-from UseFunctional import degree_token
+from keras.preprocessing.text import tokenizer_from_json
+import json
+import pandas as pd
 
 maxlen = 500
 padding = 'post'
 truncating = 'post'
 
-model = keras.models.load_model("model.h5")
+model = keras.models.load_model('./Machine Learning/model.h5')
+
+job_label = pd.read_csv("./Machine Learning/Dataset/data_capstone.csv", delimiter=";")
+job_label = job_label['job_title']
+job_label = job_label[:425]
+
+
+def load_tokenizer(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        tokenizer = json.load(f)
+        tokenizer = tokenizer_from_json(tokenizer)
+    return tokenizer
+
+
+degree_token = load_tokenizer("./Machine Learning/degree_token.json")
+job_token = load_tokenizer("./Machine Learning/job_token.json")
+key_token = load_tokenizer("./Machine Learning/key_token.json")
 
 
 def process_input(degree, job_exp, key_skill):
@@ -35,6 +49,12 @@ def predict(input_degree, input_job, input_key):
             'key': input_key,
         }
     )
-    pred = predictions[0]
-    label = pred[0:3]
+    predicted_label = np.argmax(predictions, axis=1)
+    label = [job_label[index] for index in predicted_label]
     return label
+
+
+degree_input, job_input, key_input = process_input(['Sci&Tech'], ['1'], ['Python'])
+predicted_labels = predict(degree_input, job_input, key_input)
+print("Predicted Labels:", predicted_labels)
+

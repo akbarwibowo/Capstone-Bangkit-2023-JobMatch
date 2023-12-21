@@ -4,12 +4,12 @@ import os
 import numpy as np
 import tensorflow as tf
 import pandas as pd
+import json
 
 from One_Hot import all_one_hot
 from Read_Data import read_file
 from tensorflow import keras
 from keras.preprocessing.text import Tokenizer
-
 
 # initiate variables
 cwd = getcwd()
@@ -51,99 +51,114 @@ degree_pad = keras.preprocessing.sequence.pad_sequences(degree_seq,
                                                         padding=padding,
                                                         truncating=truncating)
 
-
 job_title_hot = all_one_hot(job_title)
 
-degree_input = keras.Input(
-    shape=(None,),
-    name='degree'
-)
 
-job_input = keras.Input(
-    shape=(None,),
-    name='job'
-)
+def create_model():
+    degree_input = keras.Input(
+        shape=(None,),
+        name='degree'
+    )
 
-key_input = keras.Input(
-    shape=(None,),
-    name='key'
-)
+    job_input = keras.Input(
+        shape=(None,),
+        name='job'
+    )
 
-degree_feature = keras.layers.Embedding(
-    input_dim=vocab_size,
-    output_dim=64,
-    input_length=maxlen
-)(degree_input)
+    key_input = keras.Input(
+        shape=(None,),
+        name='key'
+    )
 
-job_feature = keras.layers.Embedding(
-    input_dim=vocab_size,
-    output_dim=64,
-    input_length=maxlen
-)(job_input)
+    degree_feature = keras.layers.Embedding(
+        input_dim=vocab_size,
+        output_dim=64,
+        input_length=maxlen
+    )(degree_input)
 
-key_feature = keras.layers.Embedding(
-    input_dim=vocab_size,
-    output_dim=64,
-    input_length=maxlen
-)(key_input)
+    job_feature = keras.layers.Embedding(
+        input_dim=vocab_size,
+        output_dim=64,
+        input_length=maxlen
+    )(job_input)
 
-degree_feature = keras.layers.Bidirectional(keras.layers.LSTM(
-    128
-))(degree_feature)
+    key_feature = keras.layers.Embedding(
+        input_dim=vocab_size,
+        output_dim=64,
+        input_length=maxlen
+    )(key_input)
 
-job_feature = keras.layers.Bidirectional(keras.layers.LSTM(
-    128
-))(job_feature)
+    degree_feature = keras.layers.Bidirectional(keras.layers.LSTM(
+        128
+    ))(degree_feature)
 
-key_feature = keras.layers.Bidirectional(keras.layers.LSTM(
-    128
-))(key_feature)
+    job_feature = keras.layers.Bidirectional(keras.layers.LSTM(
+        128
+    ))(job_feature)
 
-degree_feature = keras.layers.Flatten()(degree_feature)
-job_feature = keras.layers.Flatten()(job_feature)
-key_feature = keras.layers.Flatten()(key_feature)
+    key_feature = keras.layers.Bidirectional(keras.layers.LSTM(
+        128
+    ))(key_feature)
 
-x = keras.layers.concatenate([
-    degree_feature,
-    job_feature,
-    key_feature,
-])
+    degree_feature = keras.layers.Flatten()(degree_feature)
+    job_feature = keras.layers.Flatten()(job_feature)
+    key_feature = keras.layers.Flatten()(key_feature)
 
-job_title_pred = keras.layers.Dense(425, 'softmax', name='job_output')(x)
+    x = keras.layers.concatenate([
+        degree_feature,
+        job_feature,
+        key_feature,
+    ])
 
-model = keras.Model(
-    inputs=[degree_input, job_input, key_input],
-    outputs=job_title_pred
-)
+    job_title_pred = keras.layers.Dense(425, 'softmax', name='job_output')(x)
 
-model.compile(
-    optimizer=keras.optimizers.RMSprop(learning_rate=1e-3),
-    loss=keras.losses.categorical_crossentropy,
-    metrics=['accuracy']
-)
+    model = keras.Model(
+        inputs=[degree_input, job_input, key_input],
+        outputs=job_title_pred
+    )
 
-model.fit(
-    {
-        'degree': degree_pad,
-        'job': job_pad,
-        'key': key_pad,
-    },
-    {
-        'job_output': job_title_hot
-    },
-    32,
-    100
-)
+    return model
 
-path = os.path.join(getcwd(), str(1))
 
-keras.models.save_model(
-    model,
-    path,
-    overwrite=True,
-    save_format=None,
-    signatures=None,
-    options=None
-)
+def save_tokenizer(tokenizer, file_path):
+    tokenizer_json = tokenizer.to_json()
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(json.dumps(tokenizer_json, ensure_ascii=False))
 
-model.save("model.h5")
+
+save_tokenizer(degree_token, 'degree_token.json')
+save_tokenizer(job_token, 'job_token.json')
+save_tokenizer(key_token, 'key_token.json')
+
+# model = create_model()
+# model.compile(
+#     optimizer=keras.optimizers.RMSprop(learning_rate=1e-3),
+#     loss=keras.losses.categorical_crossentropy,
+#     metrics=['accuracy']
+# )
+#
+# model.fit(
+#     {
+#         'degree': degree_pad,
+#         'job': job_pad,
+#         'key': key_pad,
+#     },
+#     {
+#         'job_output': job_title_hot
+#     },
+#     32,
+#     100
+# )
+#
+# path = os.path.join(getcwd(), str(1))
+#
+# keras.models.save_model(
+#     model,
+#     path,
+#     overwrite=True,
+#     save_format=None,
+#     signatures=None,
+#     options=None
+# )
+#
+# model.save('model.h5')
