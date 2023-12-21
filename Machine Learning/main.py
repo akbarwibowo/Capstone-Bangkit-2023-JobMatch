@@ -49,12 +49,12 @@ def predict(input_degree, input_job, input_key):
             'key': input_key,
         }
     )
-    predicted_label = np.argmax(predictions, axis=1)
+    predicted_label = np.argsort(predictions, axis=1)[:, ::-1][0, :3]
     label = [job_label[index] for index in predicted_label]
     return label
 
 
-degree_input, job_input, key_input = process_input(['Sci&Tech'], ['1'], ['Python'])
+degree_input, job_input, key_input = process_input(['Sci&Tech'], ['1'], ['Java'])
 predicted_labels = predict(degree_input, job_input, key_input)
 print("Predicted Labels:", predicted_labels)
 
