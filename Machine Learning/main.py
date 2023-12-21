@@ -9,7 +9,7 @@ maxlen = 500
 padding = 'post'
 truncating = 'post'
 
-model = keras.models.load_model('./Machine Learning/model.h5')
+model = keras.models.load_model('./Machine Learning/1')
 
 job_label = pd.read_csv("./Machine Learning/Dataset/data_capstone.csv", delimiter=";")
 job_label = job_label['job_title']
@@ -56,5 +56,6 @@ def predict(input_degree, input_job, input_key):
 
 degree_input, job_input, key_input = process_input(['Sci&Tech'], ['1'], ['Java'])
 predicted_labels = predict(degree_input, job_input, key_input)
+
 print("Predicted Labels:", predicted_labels)
 
