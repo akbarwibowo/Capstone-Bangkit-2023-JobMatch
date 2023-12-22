@@ -33,5 +33,5 @@ Having a job is the main dream for those who are still studying in college or th
 
 **CLoud Computing:** Node, Express
 
-**Machine Learning:**  
+**Machine Learning:**  Tensorflow, Keras, Pandas, Numpy, JSON, OS
 
