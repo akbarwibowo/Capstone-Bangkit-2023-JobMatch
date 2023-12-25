@@ -1,7 +1,7 @@
 import os
 import json
-from keras.preprocessing.text import tokenizer_from_json
 from tensorflow import keras
+from keras.preprocessing.text import tokenizer_from_json
 from flask import Flask, request, jsonify
 import pandas as pd
 from keras.preprocessing.sequence import pad_sequences
@@ -61,12 +61,12 @@ app = Flask(__name__)
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        file = request.files.get('file')
-        if file is None or file.filename == "":
+        file = request.json
+        if file is None or file == "":
             return jsonify({"error": "No file provided"})
 
         try:
-            form_data = json.load(file)
+            form_data = file
 
             degree = str(form_data['degree'])
             job = str(form_data['job'])
